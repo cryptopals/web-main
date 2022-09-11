@@ -1,0 +1,105 @@
+
+<html>
+	<head>
+		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/picnic" />
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.1/jquery.min.js" integrity="sha512-aVKKRRi/Q/YV+4mjoKBsE4x3H+BkegoM/em46NNlCqNTmUYADjBbeNefNxYV7giUp0VxICtqdrbqU7iVaeZNXA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+		<style>
+			html, body {
+				height: 100%;
+			}
+			body {
+				margin: 0;
+			}
+			.flex-container {
+				height: 100%;
+				padding: 0;
+				margin: 0;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+			}
+			.inner-container {
+				
+			}
+			
+			button {
+				width: 100%;
+			}
+			
+			.input-symbol-currency {
+				position: relative;
+			}
+			.input-symbol-currency input {
+				padding-right: 15px;
+			}
+			.input-symbol-currency:after {
+				position: absolute;
+				top: 5px;
+				content:"₿";
+				right: 5px;
+			}
+			
+			.center-content {
+				display: flex;
+				justify-content: center;
+			}
+		</style>
+	</head>
+	<body style="">
+		<div class="flex-container">
+			<div class="innter-container">
+				<fieldset class="flex two">
+				  <label><input id='email' type="email" placeholder="Email"></label>
+				  <label class="input-symbol-currency"><input id='amount' type="number" placeholder="Amount"></label>
+				</fieldset>
+				<button id="btn-transfer">Transfer ⇆</button>
+			</div>
+		</div>
+		
+		<div class="modal">
+		  <input id="modal_transfer" type="checkbox" />
+		  <label for="modal_transfer" class="overlay"></label>
+		  <article>
+			<header>
+			  <h3>Continue with your wallet...</h3>
+			  <label for="modal_transfer" class="close">&times;</label>
+			</header>
+			<section class="content">
+				<div>Now you can scan the following QR Code to make the transfer through your wallet.</div>
+				<div class="center-content">
+					<img id='img_transfer' src='' />
+				</div>
+			</section>
+			<footer>
+			  <label for="modal_transfer" class="button">
+				Done
+			  </label>
+			</footer>
+		  </article>
+		</div>
+		<script>
+			const post = async function (uri, params) {
+				// const r = await $.post(uri, $.param(params)).promise();
+				const r = await $.ajax({
+        	url: uri,
+        	type: 'POST',
+        	contentType: 'application/json',
+        	data: JSON.stringify(params)
+				});
+
+				return r;
+			}
+			$('#btn-transfer').on('click', async function() {
+				const email = $('#email').val();
+				const amount = $('#amount').val();
+				const result = await post('api/transfer', { email, amount });
+				
+				$('#modal_transfer').click();
+				document.getElementById('modal_transfer').checked = true; // open mod
+				const imgUrl = `https://chart.googleapis.com/chart?chs=225x225&chld=L|2&cht=qr&chl=bitcoin:${result.address}?amount=${result.amount}`;
+				$('#img_transfer').attr('src', imgUrl);
+				console.log(imgUrl);
+			});
+		</script>
+	</body>
+</html>
